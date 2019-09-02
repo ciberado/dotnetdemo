@@ -1,4 +1,5 @@
 # ASP.NET Core
+
 # Build and test ASP.NET Core projects targeting .NET Core.
 # Add steps that run tests, create a NuGet package, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
@@ -20,3 +21,11 @@ steps:
     version: '3.0.100-preview8-013656'
 - script: dotnet publish -c release -o webapp
   displayName: 'dotnet build $(buildConfiguration)'
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerhub'
+    repository: 'ciberado/dotnetdemo2'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
+
+    

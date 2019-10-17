@@ -2,6 +2,19 @@ trigger:
 - master
 
 stages:
+- stage: UnitTesting
+  jobs:
+  - job: DotNetUnitTesting
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - script: echo Run your very cool test suite here
+  - job: JavascriptUnitTesting
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - script: echo The fun is in the js tests
+
 - stage: Build
   jobs:
   - job: Build
@@ -24,31 +37,11 @@ stages:
         repository: 'ciberado/dotnetdemo2'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
-- stage: DeployStaging
+
+- stage: Compliance
   jobs:
-    # track deployments on the environment
-  - deployment: DeployWeb
+  - job: ExecuteSecurityCompliance
     pool:
-      vmImage: 'Ubuntu-16.04'
-    # creates an environment if it doesn’t exist
-    environment: 'dotenetcoredemo-staging'
-    strategy:
-      # default deployment strategy
-      runOnce:
-        deploy:
-          steps:
-          - script: echo my first deployment
-- stage: DeployProduction
-  jobs:
-    # track deployments on the environment
-  - deployment: DeployWeb
-    pool:
-      vmImage: 'Ubuntu-16.04'
-    # creates an environment if it doesn’t exist
-    environment: 'dotenetcoredemo-production'
-    strategy:
-      # default deployment strategy
-      runOnce:
-        deploy:
-          steps:
-          - script: echo my first deployment
+      vmImage: 'ubuntu-latest'
+    steps:
+      - script: echo Now trigger that fancy security tool execution

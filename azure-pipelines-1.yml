@@ -1,0 +1,54 @@
+trigger:
+- master
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    pool:
+      vmImage: 'ubuntu-latest'
+    variables:
+      buildConfiguration: 'Release'
+      imageName: 'ciberado/dotnetdemo'
+
+    steps:
+    - task: DotNetCoreInstaller@0
+      displayName: 'Install .net core 3.0 (preview)'
+      inputs:
+        version: '3.0.100-preview8-013656'
+    - script: dotnet publish -c release -o webapp
+      displayName: 'dotnet build $(buildConfiguration)'
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'dockerhub'
+        repository: 'ciberado/dotnetdemo2'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+- stage: DeployStaging
+  jobs:
+    # track deployments on the environment
+  - deployment: DeployWeb
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    # creates an environment if it doesn’t exist
+    environment: 'dotenetcoredemo-staging'
+    strategy:
+      # default deployment strategy
+      runOnce:
+        deploy:
+          steps:
+          - script: echo my first deployment
+- stage: DeployProduction
+  jobs:
+    # track deployments on the environment
+  - deployment: DeployWeb
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    # creates an environment if it doesn’t exist
+    environment: 'dotenetcoredemo-production'
+    strategy:
+      # default deployment strategy
+      runOnce:
+        deploy:
+          steps:
+          - script: echo my first deployment
